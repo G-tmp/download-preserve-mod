@@ -11,7 +11,7 @@
 
   "permissions": [
     "downloads",
-    "contextMenus",
+    "menus",
     "webRequest",
     "nativeMessaging",
     "<all_urls>"

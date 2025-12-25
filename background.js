@@ -1,6 +1,6 @@
 
 // Right-click menu
-browser.contextMenus.create({
+browser.menus.create({
   id: "download-with-timestamp",
   title: "Download (preserve mod time)",
   contexts: ["image", "video", "audio"]
@@ -9,7 +9,7 @@ browser.contextMenus.create({
 
 let lastMod;
 // Right-click event
-browser.contextMenus.onClicked.addListener(async (info, tab) => {
+browser.menus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId !== "download-with-timestamp") 
     return;
 
@@ -70,9 +70,7 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
                 mtime: new Date(lastMod).getTime() / 1000
               }
             ).then((response)=>{
-              if (!response.ok) {
-                console.error(`Native modify failed: ${response.error}`);
-              }
+              console.log(response)
             }, (error) => {
               console.error(error);
             });
