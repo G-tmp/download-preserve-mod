@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"time"
+	"fmt"
 )
 
 type Request struct {
@@ -16,6 +17,14 @@ type Request struct {
 type Response struct {
 	OK    bool   `json:"ok"`
 	Error string `json:"error,omitempty"`
+}
+
+func (req Request)String() string{
+	return fmt.Sprintf("%s %f", req.Path, req.MTime)
+}
+
+func (res Response)String() string{
+	return fmt.Sprintf("%t %v", res.OK, res.Error)
 }
 
 func readMessage() (*Request, error) {
@@ -39,21 +48,42 @@ func sendMessage(resp Response) error {
 		return err
 	}
 	_, err := os.Stdout.Write(data)
+	os.Stdout.Sync()
 	return err
 }
 
 
 func main() {
-	req, err := readMessage()
+
+	logFile := "/tmp/native-chtime.log"
+	f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		sendMessage(Response{OK: false, Error: err.Error()})	
-		return 
+		f = nil
+	} else {
+		defer f.Close()
+	}
+	log := func(s string){
+		if f != nil{
+			f.Write([]byte(s + "\n"))
+		}
 	}
 
+	log(time.Now().String())
+	
+	req, err := readMessage()
+	if err != nil {
+		resp := Response{OK: false, Error: err.Error()}
+		sendMessage(resp)
+		log(resp.String())
+		return 
+	}
+	log(req.String())
+	
 	if req.MTime > 0 {
 		t := time.Unix(int64(req.MTime), 0)
 		os.Chtimes(req.Path, t, t)
 	}
-
-	sendMessage(Response{OK: true})
+	resp := Response{OK: true}
+	sendMessage(resp)
+	log(resp.String())
 }
