@@ -10,8 +10,8 @@ import (
 )
 
 type Request struct {
-	Path  string  `json:"path"`
-	MTime float64 `json:"mtime"` // unix seconds
+	Path  string	`json:"path"`
+	MTime int64		`json:"mtime"` // unix seconds
 }
 
 type Response struct {
@@ -20,11 +20,11 @@ type Response struct {
 }
 
 func (req Request)String() string{
-	return fmt.Sprintf("%s %f", req.Path, req.MTime)
+	return fmt.Sprintf("%s | %s", req.Path, time.Unix(req.MTime, 0).UTC().Format(time.RFC1123Z))
 }
 
 func (res Response)String() string{
-	return fmt.Sprintf("%t %v", res.OK, res.Error)
+	return fmt.Sprintf("%t | %v", res.OK, res.Error)
 }
 
 func readMessage() (*Request, error) {
