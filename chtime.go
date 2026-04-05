@@ -10,17 +10,19 @@ import (
 )
 
 type Request struct {
+	ID	  uint32 	`json:"downloadId"`
 	Path  string	`json:"path"`
 	MTime int64		`json:"mtime"` // unix seconds
 }
 
 type Response struct {
-	OK    bool   `json:"ok"`
-	Error string `json:"error,omitempty"`
+	Req   Request 	`json:"raw"`
+	OK    bool   	`json:"ok"`
+	Error string 	`json:"error,omitempty"`
 }
 
 func (req Request)String() string{
-	return fmt.Sprintf("%s | %s", req.Path, time.Unix(req.MTime, 0).UTC().Format(time.RFC1123Z))
+	return fmt.Sprintf("%d | %s | %s", req.ID, req.Path, time.Unix(req.MTime, 0).UTC().Format(time.RFC1123Z))
 }
 
 func (res Response)String() string{
@@ -72,7 +74,7 @@ func main() {
 	
 	req, err := readMessage()
 	if err != nil {
-		resp := Response{OK: false, Error: err.Error()}
+		resp := Response{Req:*req, OK: false, Error: err.Error()}
 		sendMessage(resp)
 		log(resp.String())
 		return 
@@ -83,7 +85,7 @@ func main() {
 		t := time.Unix(int64(req.MTime), 0)
 		os.Chtimes(req.Path, t, t)
 	}
-	resp := Response{OK: true}
+	resp := Response{Req:*req, OK: true}
 	sendMessage(resp)
 	log(resp.String())
 }

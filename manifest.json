@@ -10,6 +10,7 @@
   },
 
   "permissions": [
+    "notifications",
     "downloads",
     "menus",
     "webRequest",
